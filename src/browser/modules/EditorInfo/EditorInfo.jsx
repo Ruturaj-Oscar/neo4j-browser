@@ -5,10 +5,16 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { withBus } from 'react-suber'
+import AddProperty from './AddProperty'
 
 export class EditorInfo extends Component {
   render () {
-    return <div>Editor</div>
+    return (
+      <div>
+        <div>Editor</div>
+        <AddProperty />
+      </div>
+    )
   }
 }
 
