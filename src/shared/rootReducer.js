@@ -66,6 +66,9 @@ import appReducer, { NAME as app } from 'shared/modules/app/appDuck'
 import itemEditorReducer, {
   NAME as itemEditor
 } from 'shared/modules/itemEditor/itemEditorDuck'
+import textEditorUIReducer, {
+  NAME as TextEditorUI
+} from 'shared/modules/itemEditor/TexteditorUI'
 import experimentalFeaturesReducer, {
   NAME as experimentalFeatures
 } from 'shared/modules/experimentalFeatures/experimentalFeaturesDuck'
@@ -92,5 +95,6 @@ export default {
   [udc]: udcReducer,
   [app]: appReducer,
   [experimentalFeatures]: experimentalFeaturesReducer,
-  [itemEditor]: itemEditorReducer
+  [itemEditor]: itemEditorReducer,
+  [TextEditorUI]: textEditorUIReducer
 }
