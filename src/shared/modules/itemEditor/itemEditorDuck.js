@@ -27,7 +27,6 @@ export const fetchData = (id, entityType) => {
 }
 
 export const saveNewProperty = (id, value) => {
-  console.log(id, value)
   return {
     type: SAVE_NEW_PROPERTY,
     id,

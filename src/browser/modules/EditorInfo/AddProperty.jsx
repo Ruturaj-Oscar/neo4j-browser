@@ -28,27 +28,59 @@ export class AddProperty extends Component {
     this.state = {
       key: '',
       propertyType: 'string',
+      values: {
+        validFlag: false,
+        boolValue: false,
+        typeText: '',
+        typeNumber: '',
+        selectedDate: {
+          year: 1950,
+          month: 12,
+          day: 12
+        },
+        spacial: {
+          latitude: '',
+          longitude: ''
+        }
+      }
+    }
+  }
+
+  getInitState = () => {
+    let values = {
+      validFlag: false,
       boolValue: false,
       typeText: '',
-      typeNumber: 0,
+      typeNumber: '',
       selectedDate: {
         year: 1950,
         month: 12,
         day: 12
+      },
+      spacial: {
+        latitude: '',
+        longitude: ''
       }
     }
+    return values
   }
 
   handleSave = type => {
     switch (type) {
       case 'string':
-        this.props.saveNewProperty(this.state.key, this.state.typeText)
+        this.props.saveNewProperty(this.state.key, this.state.values.typeText)
         break
       case 'number':
         this.props.saveNewProperty(
           this.state.key,
-          neo4j.int(this.state.typeNumber)
+          neo4j.int(this.state.values.typeNumber)
         )
+        break
+      case 'spacial':
+        let spacialObj = _.cloneDeep(this.state.values.spacial)
+        spacialObj.longitude = parseFloat(spacialObj.longitude)
+        spacialObj.latitude = parseFloat(spacialObj.latitude)
+        this.props.saveNewProperty(this.state.key, spacialObj)
         break
       case 'boolean':
         this.props.saveNewProperty(
@@ -57,8 +89,11 @@ export class AddProperty extends Component {
         )
         break
       case 'date':
-        this.props.saveNewProperty(this.state.key, this.state.selectedDate)
-        console.log(typeof this.state.selectedDate.year)
+        let convertedDate = _.cloneDeep(this.state.values.selectedDate)
+        convertedDate.year = neo4j.int(convertedDate.year)
+        convertedDate.month = neo4j.int(convertedDate.month)
+        convertedDate.day = neo4j.int(convertedDate.day)
+        this.props.saveNewProperty(this.state.key, convertedDate)
         break
       default:
         break
@@ -69,95 +104,144 @@ export class AddProperty extends Component {
     this.setState({ key: e.target.value })
   }
 
+  handleSpacialChange = (id, value) => {
+    const re = /^[0-9\b.]+$/
+    if (value === '' || re.test(value)) {
+      let values = Object.assign({}, this.state.values)
+      values.spacial[id] = value
+      values.validFlag = true
+      this.setState({ values })
+    } else alert('please enter number')
+  }
+
+  onDatePropSelect = date => {
+    let newDate = new Date(date)
+    let values = Object.assign({}, this.state.values)
+    values.selectedDate.year = newDate.getUTCFullYear()
+    values.selectedDate.month = 1 + newDate.getUTCMonth()
+    values.selectedDate.day = newDate.getUTCDate()
+    values.validFlag = true
+    this.setState({ values })
+  }
+
   handleDatatypeChange = (type, value) => {
     const re = /^[0-9\b]+$/
+    let values = Object.assign({}, this.state.values)
     if (type === 'number') {
       if (value === '' || re.test(value)) {
-        this.setState({ typeNumber: value, typeText: '' })
-      } else alert('Please enter number')
+        values.typeNumber = value
+        values.validFlag = true
+        this.setState({ values })
+      } else {
+        alert('Please enter number')
+      }
     }
     if (type === 'string') {
-      this.setState({ typeText: value, typeNumber: '' })
+      let values = Object.assign({}, this.state.values)
+      values.typeText = value
+      values.validFlag = true
+      this.setState({ values })
     }
   }
 
   onPropertyTypeSelect = propertyType => {
-    this.setState({ propertyType })
+    let values = _.cloneDeep(this.state.values)
+    values = this.getInitState()
+    this.setState({ values, propertyType })
   }
 
-  onBooleanPropSelect = boolValue => {
-    this.setState({ boolValue })
-  }
-
-  onDatePropSelect = date => {
-    let newDate = new Date(date.toLocaleDateString())
-    let newState = _.cloneDeep(this.state)
-    ;(newState.selectedDate.year = newDate.getFullYear()),
-    (newState.selectedDate.month = newDate.getMonth()),
-    (newState.selectedDate.day = newDate.getDate())
+  onBooleanPropSelect = bool => {
+    let values = Object.assign({}, this.state.values)
+    values.boolValue = bool
+    values.validFlag = true
+    this.setState({ values })
   }
 
   render () {
-    let propertyValueInput
+    let propertyValueInput = null
     const options = ['true', 'false']
     switch (this.state.propertyType) {
       case 'number':
         propertyValueInput = (
-          <div>
+          <DrawerSection>
             <TextInput
               id='number'
               onChange={e => {
                 this.handleDatatypeChange(e.target.id, e.target.value)
               }}
-              value={this.state.typeNumber}
+              value={this.state.values.typeNumber}
             />
-          </div>
+          </DrawerSection>
         )
         break
       case 'date':
         propertyValueInput = (
-          <div>
+          <DrawerSection>
             <DatePicker onDatePropSelect={this.onDatePropSelect} />
             {/* <TextInput
               disabled
               id="date"
               value={this.state.selectedDate.toString()}
             /> */}
-          </div>
+          </DrawerSection>
         )
         break
       case 'string':
         propertyValueInput = (
-          <div>
+          <DrawerSection>
             <TextInput
               id='string'
               onChange={e => {
                 this.handleDatatypeChange(e.target.id, e.target.value)
               }}
-              value={this.state.typeText}
+              value={this.state.values.typeText}
             />
-          </div>
+          </DrawerSection>
+        )
+        break
+      case 'spacial':
+        propertyValueInput = (
+          <DrawerSection>
+            Latitude :
+            <DrawerSectionBody>
+              <TextInput
+                id='latitude'
+                onChange={e => {
+                  this.handleSpacialChange(e.target.id, e.target.value)
+                }}
+                value={this.state.values.spacial.latitude}
+              />
+            </DrawerSectionBody>
+            <DrawerSection />
+            Longitude :
+            <DrawerSectionBody>
+              <TextInput
+                id='longitude'
+                onChange={e => {
+                  this.handleSpacialChange(e.target.id, e.target.value)
+                }}
+                value={this.state.values.spacial.longitude}
+              />
+            </DrawerSectionBody>
+          </DrawerSection>
         )
         break
       case 'boolean':
         propertyValueInput = (
-          <div>
+          <DrawerSection>
             <RadioSelector
               options={options}
               onChange={e => {
                 this.onBooleanPropSelect(e.target.value)
               }}
-              selectedValue={this.state.boolValue}
+              selectedValue={this.state.values.boolValue}
+              checked={false}
             />
-          </div>
+          </DrawerSection>
         )
         break
       default:
-        propertyValueInput = (
-          <div>
-            <TextInput id='string' />
-          </div>
-        )
+        null
     }
 
     return (
@@ -191,10 +275,21 @@ export class AddProperty extends Component {
             }}
           >
             <FormButton
+              style={
+                this.state.key && this.state.values.validFlag
+                  ? {
+                    borderColor: 'green',
+                    color: 'green'
+                  }
+                  : { borderColor: 'brown', color: 'brown' }
+              }
               onClick={() => {
                 this.handleSave(this.state.propertyType)
                 this.props.setAddPropVisibility()
               }}
+              disabled={
+                !(this.state.key && this.state.values.validFlag)
+              }
             >
               Save
             </FormButton>

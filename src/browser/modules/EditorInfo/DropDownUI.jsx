@@ -35,6 +35,7 @@ class DropDownUI extends React.Component {
         <MenuItem value='boolean'>Boolean</MenuItem>
         <MenuItem value='string'>String</MenuItem>
         <MenuItem value='date'>Date</MenuItem>
+        <MenuItem value='spacial'>Spacial</MenuItem>
       </Select>
     )
   }

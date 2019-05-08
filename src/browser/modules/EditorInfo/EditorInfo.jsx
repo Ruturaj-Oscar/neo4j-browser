@@ -10,7 +10,6 @@ import * as itemEditorActions from 'shared/modules/itemEditor/itemEditorDuck'
 
 export class EditorInfo extends Component {
   render () {
-    console.log(this.props.addPropVisibility)
     return this.props.addPropVisibility ? (
       <div>
         <AddProperty
