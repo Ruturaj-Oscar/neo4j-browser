@@ -19,7 +19,11 @@ import {
   DrawerSubHeader
 } from 'browser-components/drawer/index'
 import DatePicker from './DatePicker'
+import SpacialComponent from './SpacialComponent'
 import DropDownUI from './DropDownUI'
+import GoCalendar from 'react-icons/lib/go/calendar'
+import { StyledKey, StyledValue } from '../DatabaseInfo/styled'
+import { StyledTable } from '../Stream/Queries/styled'
 
 export class AddProperty extends Component {
   constructor (props) {
@@ -27,44 +31,64 @@ export class AddProperty extends Component {
 
     this.state = {
       key: '',
-      propertyType: 'string',
+      calenderFlag: false,
+      propertyType: undefined,
+      date: new Date().toLocaleDateString(),
       values: {
         validFlag: false,
+        numCheck: false,
         boolValue: false,
         typeText: '',
         typeNumber: '',
         selectedDate: {
-          year: 1950,
-          month: 12,
-          day: 12
+          year: new Date().getFullYear,
+          month: new Date().getMonth,
+          day: new Date().getDate
         },
         spacial: {
-          latitude: '',
-          longitude: ''
+          latitude: 0.0,
+          longitude: 0.0
         }
       }
     }
   }
 
+  /**
+   * this method is used to inialize the state.
+   */
   getInitState = () => {
     let values = {
       validFlag: false,
+      numCheck: false,
       boolValue: false,
       typeText: '',
       typeNumber: '',
       selectedDate: {
-        year: 1950,
-        month: 12,
-        day: 12
+        year: new Date().getFullYear,
+        month: new Date().getMonth,
+        day: new Date().getDate
       },
       spacial: {
-        latitude: '',
-        longitude: ''
+        latitude: 0.0,
+        longitude: 0.0
       }
     }
     return values
   }
 
+  /**
+   * Method is used to render the calender on icon click
+   */
+
+  toggleCalender = () => {
+    this.setState({
+      calenderFlag: !this.state.calenderFlag
+    })
+  }
+
+  /**
+   * this method is invoked on save button click and the state is updated in redux.
+   */
   handleSave = type => {
     switch (type) {
       case 'string':
@@ -85,7 +109,7 @@ export class AddProperty extends Component {
       case 'boolean':
         this.props.saveNewProperty(
           this.state.key,
-          Boolean(this.state.boolValue)
+          Boolean(this.state.values.boolValue)
         )
         break
       case 'date':
@@ -100,173 +124,227 @@ export class AddProperty extends Component {
     }
   }
 
-  handlekeyChange = e => {
-    this.setState({ key: e.target.value })
-  }
-
-  handleSpacialChange = (id, value) => {
-    const re = /^[0-9\b.]+$/
-    if (value === '' || re.test(value)) {
-      let values = Object.assign({}, this.state.values)
-      values.spacial[id] = value
-      values.validFlag = true
-      this.setState({ values })
-    } else alert('please enter number')
-  }
-
-  onDatePropSelect = date => {
-    let newDate = new Date(date)
+  /**
+   * This method handles the component state.
+   */
+  handleChange = (id, value) => {
     let values = Object.assign({}, this.state.values)
-    values.selectedDate.year = newDate.getUTCFullYear()
-    values.selectedDate.month = 1 + newDate.getUTCMonth()
-    values.selectedDate.day = newDate.getUTCDate()
-    values.validFlag = true
-    this.setState({ values })
-  }
-
-  handleDatatypeChange = (type, value) => {
-    const re = /^[0-9\b]+$/
-    let values = Object.assign({}, this.state.values)
-    if (type === 'number') {
-      if (value === '' || re.test(value)) {
+    switch (id) {
+      case 'key':
+        this.setState({ key: value })
+        break
+      case 'number':
+        const re = /^[0-9\b]+$/
         values.typeNumber = value
-        values.validFlag = true
+        if (values.typeNumber === '') {
+          values.validFlag = false
+          values.numCheck = false
+        } else {
+          re.test(value) ? (values.numCheck = true) : (values.numCheck = false)
+          values.validFlag = true
+        }
         this.setState({ values })
-      } else {
-        alert('Please enter number')
-      }
-    }
-    if (type === 'string') {
-      let values = Object.assign({}, this.state.values)
-      values.typeText = value
-      values.validFlag = true
-      this.setState({ values })
+        break
+      case 'string':
+        values.typeText = value
+        values.numCheck = true
+        values.typeText === ''
+          ? (values.validFlag = false)
+          : (values.validFlag = true)
+        this.setState({ values })
+        break
+      case 'latitude':
+        const latRe = /^[0-9\b.]+$/
+        latRe.test(value) && latRe.test(this.state.values.spacial.longitude)
+          ? (values.numCheck = true)
+          : (values.numCheck = false)
+        values.spacial[id] = value
+        values.spacial.longitude === '' || values.spacial.latitude === ''
+          ? (values.validFlag = false)
+          : (values.validFlag = true)
+        this.setState({ values })
+        break
+      case 'longitude':
+        const lonRe = /^[0-9\b.]+$/
+        lonRe.test(value) && lonRe.test(this.state.values.spacial.latitude)
+          ? (values.numCheck = true)
+          : (values.numCheck = false)
+        values.spacial[id] = value
+        values.spacial.latitude === '' || values.spacial.longitude === ''
+          ? (values.validFlag = false)
+          : (values.validFlag = true)
+        this.setState({ values })
+        break
+      case 'boolean':
+        values.boolValue = value
+        values.validFlag = true
+        values.numCheck = true
+        this.setState({ values })
+        break
+      case 'date':
+        this.setState({ date: value.toLocaleDateString() })
+        let newDate = new Date(value)
+        values.selectedDate.year = newDate.getUTCFullYear()
+        values.selectedDate.month = 1 + newDate.getUTCMonth()
+        values.selectedDate.day = newDate.getUTCDate()
+        values.validFlag = true
+        values.numCheck = true
+        this.setState({ values })
+        break
+      default:
+        break
     }
   }
 
+  /**
+   * This method used for setting the property data-type and
+   * based on the property type, input components are rendered
+   */
   onPropertyTypeSelect = propertyType => {
     let values = _.cloneDeep(this.state.values)
     values = this.getInitState()
     this.setState({ values, propertyType })
   }
 
-  onBooleanPropSelect = bool => {
-    let values = Object.assign({}, this.state.values)
-    values.boolValue = bool
-    values.validFlag = true
-    this.setState({ values })
-  }
-
   render () {
     let propertyValueInput = null
+    let textStyle = {
+      borderColor: 'crimson',
+      borderWidth: '2px',
+      width: '120px'
+    }
+    let validStyle = {
+      borderColor: 'green',
+      borderWidth: '2px',
+      width: '120px'
+    }
     const options = ['true', 'false']
     switch (this.state.propertyType) {
       case 'number':
         propertyValueInput = (
-          <DrawerSection>
-            <TextInput
-              id='number'
-              onChange={e => {
-                this.handleDatatypeChange(e.target.id, e.target.value)
-              }}
-              value={this.state.values.typeNumber}
-            />
-          </DrawerSection>
+          <TextInput
+            style={this.state.values.numCheck ? { width: '120px' } : textStyle}
+            id='number'
+            onChange={e => {
+              this.handleChange(e.target.id, e.target.value)
+            }}
+            value={this.state.values.typeNumber}
+          />
         )
         break
       case 'date':
         propertyValueInput = (
-          <DrawerSection>
-            <DatePicker onDatePropSelect={this.onDatePropSelect} />
-            {/* <TextInput
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}
+          >
+            <TextInput
+              style={{
+                width: '120px'
+              }}
+              value={this.state.date}
               disabled
-              id="date"
-              value={this.state.selectedDate.toString()}
-            /> */}
-          </DrawerSection>
+            />
+            <GoCalendar
+              style={{
+                float: 'right',
+                height: '2em',
+                width: '2em',
+                color: 'ghostwhite'
+              }}
+              onClick={this.toggleCalender}
+            />
+          </div>
         )
         break
       case 'string':
         propertyValueInput = (
-          <DrawerSection>
-            <TextInput
-              id='string'
-              onChange={e => {
-                this.handleDatatypeChange(e.target.id, e.target.value)
-              }}
-              value={this.state.values.typeText}
-            />
-          </DrawerSection>
+          <TextInput
+            style={{
+              width: '120px'
+            }}
+            id='string'
+            onChange={e => {
+              this.handleChange(e.target.id, e.target.value)
+            }}
+            value={this.state.values.typeText}
+          />
         )
         break
       case 'spacial':
         propertyValueInput = (
-          <DrawerSection>
-            Latitude :
-            <DrawerSectionBody>
-              <TextInput
-                id='latitude'
-                onChange={e => {
-                  this.handleSpacialChange(e.target.id, e.target.value)
-                }}
-                value={this.state.values.spacial.latitude}
-              />
-            </DrawerSectionBody>
-            <DrawerSection />
-            Longitude :
-            <DrawerSectionBody>
-              <TextInput
-                id='longitude'
-                onChange={e => {
-                  this.handleSpacialChange(e.target.id, e.target.value)
-                }}
-                value={this.state.values.spacial.longitude}
-              />
-            </DrawerSectionBody>
-          </DrawerSection>
+          <SpacialComponent
+            handleChange={this.handleChange}
+            spacial={this.state.values.spacial}
+            numCheck={this.state.values.numCheck}
+          />
         )
         break
       case 'boolean':
         propertyValueInput = (
-          <DrawerSection>
-            <RadioSelector
-              options={options}
-              onChange={e => {
-                this.onBooleanPropSelect(e.target.value)
-              }}
-              selectedValue={this.state.values.boolValue}
-              checked={false}
-            />
-          </DrawerSection>
+          <RadioSelector
+            id='boolean'
+            options={options}
+            onChange={e => {
+              this.handleChange('boolean', e.target.value)
+            }}
+            selectedValue={this.state.values.boolValue}
+          />
         )
         break
       default:
         null
     }
-
     return (
       <Drawer id='db-AddProperty'>
-        <DrawerHeader>Add Property : {this.props.SelectedType}</DrawerHeader>
+        <DrawerHeader />
         <DrawerBody>
+          <DrawerSubHeader>
+            Add Property : {this.props.SelectedType}
+          </DrawerSubHeader>
           <DrawerSection>
-            <DrawerSubHeader>Key : </DrawerSubHeader>
             <DrawerSectionBody>
-              <TextInput id='key' onChange={this.handlekeyChange} />
+              <StyledTable>
+                <tbody>
+                  <tr>
+                    <StyledKey>key:</StyledKey>
+                    <StyledValue>
+                      <TextInput
+                        id='key'
+                        onChange={e => {
+                          this.handleChange(e.target.id, e.target.value)
+                        }}
+                        style={{
+                          width: '120px'
+                        }}
+                      />
+                    </StyledValue>
+                  </tr>
+                  <tr>
+                    <StyledKey> Data Type:</StyledKey>
+                    <StyledValue>
+                      <DropDownUI
+                        value={this.state.propertyType}
+                        onSelect={this.onPropertyTypeSelect}
+                      />
+                    </StyledValue>
+                  </tr>
+                  <tr style={{ verticalAlign: '-webkit-baseline-middle' }}>
+                    <StyledKey>Value :</StyledKey>
+                    <StyledValue>{propertyValueInput}</StyledValue>
+                  </tr>
+                  <tr>
+                    {this.state.calenderFlag ? (
+                      <DatePicker onDatePropSelect={this.handleChange} />
+                    ) : null}
+                  </tr>
+                </tbody>
+              </StyledTable>
             </DrawerSectionBody>
           </DrawerSection>
-          <DrawerSection>
-            <DrawerSubHeader>Datatype : </DrawerSubHeader>
-            <DrawerSectionBody>
-              <DropDownUI
-                value={this.state.propertyType}
-                onSelect={this.onPropertyTypeSelect}
-              />
-            </DrawerSectionBody>
-          </DrawerSection>
-          <DrawerSection>
-            <DrawerSubHeader>Value : </DrawerSubHeader>
-            <DrawerSectionBody>{propertyValueInput}</DrawerSectionBody>
-          </DrawerSection>
+
           <hr />
           <DrawerSection
             style={{
@@ -276,19 +354,23 @@ export class AddProperty extends Component {
           >
             <FormButton
               style={
-                this.state.key && this.state.values.validFlag
-                  ? {
-                    borderColor: 'green',
-                    color: 'green'
-                  }
-                  : { borderColor: 'brown', color: 'brown' }
+                this.state.key &&
+                (this.state.values.validFlag && this.state.values.numCheck)
+                  ? validStyle
+                  : textStyle
               }
               onClick={() => {
                 this.handleSave(this.state.propertyType)
                 this.props.setAddPropVisibility()
+                this.setState({
+                  calenderFlag: false
+                })
               }}
               disabled={
-                !(this.state.key && this.state.values.validFlag)
+                !(
+                  this.state.key &&
+                  (this.state.values.validFlag && this.state.values.numCheck)
+                )
               }
             >
               Save
