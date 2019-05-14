@@ -13,7 +13,6 @@ export class EditorInfo extends Component {
     return this.props.addPropVisibility ? (
       <div>
         <AddProperty
-          SelectedType={this.props.SelectedType}
           setAddPropVisibility={this.props.setAddPropVisibility}
           saveNewProperty={this.props.saveNewProperty}
         />

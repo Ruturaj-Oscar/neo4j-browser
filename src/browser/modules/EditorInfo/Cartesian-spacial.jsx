@@ -1,10 +1,11 @@
+/**
+ * This component is used to accept the cartesian coordinates
+ *
+ */
 import React from 'react'
-import MaskedInput from 'react-text-mask'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Input from '@material-ui/core/Input'
-import { StyledTable } from 'browser-components/DataTables'
-import { StyledKey, StyledValue } from '../DatabaseInfo/styled'
 
 const styles = theme => ({
   root: {
@@ -25,32 +26,13 @@ const styles = theme => ({
   }
 })
 
-function TextMaskCustom(props) {
-  const { inputRef, ...other } = props
-
-  return (
-    <MaskedInput
-      {...other}
-      ref={ref => {
-        inputRef(ref ? ref.inputElement : null)
-      }}
-      mask={[/[1-9]/, /\d/, '.', /\d/, /\d/]}
-      showMask
-    />
-  )
-}
-
-TextMaskCustom.propTypes = {
-  inputRef: PropTypes.func.isRequired
-}
-
-class SpacialComponent extends React.Component {
+class CartesianSpacial extends React.Component {
   render() {
     const { classes } = this.props
     return (
       <>
         <div>
-          Latitude :
+          X :<br />
           <Input
             style={
               this.props.numCheck
@@ -64,20 +46,21 @@ class SpacialComponent extends React.Component {
                   }
             }
             className={classes.style}
-            value={this.props.spacial.latitude}
+            value={this.props.cartesian.X}
             onChange={e => {
-              this.props.handleChange(e.target.id, e.target.value)
+              this.props.handleChange('cartesian-Spacial', e.target)
             }}
-            id="latitude"
-            inputComponent={TextMaskCustom}
+            id="X"
           />
         </div>
         <div>
-          Longitude:
+          Y :<br />
           <Input
             style={
               this.props.numCheck
-                ? { width: '120px' }
+                ? {
+                    width: '120px'
+                  }
                 : {
                     borderColor: 'crimson',
                     borderWidth: '2px',
@@ -85,12 +68,33 @@ class SpacialComponent extends React.Component {
                   }
             }
             className={classes.style}
-            value={this.props.spacial.longitude}
+            value={this.props.cartesian.Y}
             onChange={e => {
-              this.props.handleChange(e.target.id, e.target.value)
+              this.props.handleChange('cartesian-Spacial', e.target)
             }}
-            id="longitude"
-            inputComponent={TextMaskCustom}
+            id="Y"
+          />
+        </div>
+        <div>
+          Z :<br />
+          <Input
+            style={
+              this.props.numCheck
+                ? {
+                    width: '120px'
+                  }
+                : {
+                    borderColor: 'crimson',
+                    borderWidth: '2px',
+                    width: '120px'
+                  }
+            }
+            className={classes.style}
+            value={this.props.cartesian.Z}
+            onChange={e => {
+              this.props.handleChange('cartesian-Spacial', e.target)
+            }}
+            id="Z"
           />
         </div>
       </>
@@ -98,8 +102,8 @@ class SpacialComponent extends React.Component {
   }
 }
 
-SpacialComponent.propTypes = {
+CartesianSpacial.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-export default withStyles(styles)(SpacialComponent)
+export default withStyles(styles)(CartesianSpacial)

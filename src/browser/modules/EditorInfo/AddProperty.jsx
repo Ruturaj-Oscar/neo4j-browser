@@ -19,7 +19,8 @@ import {
   DrawerSubHeader
 } from 'browser-components/drawer/index'
 import DatePicker from './DatePicker'
-import SpacialComponent from './SpacialComponent'
+import GeographicSpacial from './Geographic-spacial'
+import CartesianSpacial from './Cartesian-spacial'
 import DropDownUI from './DropDownUI'
 import GoCalendar from 'react-icons/lib/go/calendar'
 import { StyledKey, StyledValue } from '../DatabaseInfo/styled'
@@ -45,16 +46,16 @@ export class AddProperty extends Component {
           month: new Date().getMonth,
           day: new Date().getDate
         },
-        spacial: {
-          latitude: 0.0,
-          longitude: 0.0
-        }
+
+        geographic: { index: '', latitude: '', longitude: '', height: '' },
+        cartesian: { index: '', X: '', Y: '', Z: '' }
       }
     }
   }
 
   /**
-   * this method is used to inialize the state.
+   * This method is used to inialize the state.
+   * After property Data type change this function is invoked
    */
   getInitState = () => {
     let values = {
@@ -68,10 +69,9 @@ export class AddProperty extends Component {
         month: new Date().getMonth,
         day: new Date().getDate
       },
-      spacial: {
-        latitude: 0.0,
-        longitude: 0.0
-      }
+
+      geographic: { index: '', latitude: '', longitude: '', height: '' },
+      cartesian: { index: '', X: '', Y: '', Z: '' }
     }
     return values
   }
@@ -100,11 +100,26 @@ export class AddProperty extends Component {
           neo4j.int(this.state.values.typeNumber)
         )
         break
-      case 'spacial':
-        let spacialObj = _.cloneDeep(this.state.values.spacial)
-        spacialObj.longitude = parseFloat(spacialObj.longitude)
-        spacialObj.latitude = parseFloat(spacialObj.latitude)
-        this.props.saveNewProperty(this.state.key, spacialObj)
+      case 'geographical-Spacial':
+        let geoObj = _.cloneDeep(this.state.values.geographic)
+        geoObj.longitude = parseFloat(geoObj.longitude)
+        geoObj.latitude = parseFloat(geoObj.latitude)
+        !geoObj.height || geoObj.height === '__.__'
+          ? ((geoObj.index = 'WGS 84 2D'), (geoObj.height = undefined))
+          : ((geoObj.index = 'WGS 84 3D'),
+          (geoObj.height = parseFloat(geoObj.height)))
+        this.props.saveNewProperty(this.state.key, geoObj)
+        break
+
+      case 'cartesian-Spacial':
+        let carteObj = _.cloneDeep(this.state.values.cartesian)
+        carteObj.X = parseFloat(carteObj.X)
+        carteObj.Y = parseFloat(carteObj.Y)
+        carteObj.Z !== ''
+          ? ((carteObj.index = 'Cartesian 3D'),
+          (carteObj.Z = parseFloat(carteObj.Z)))
+          : ((carteObj.index = 'Cartesian 2D'), (carteObj.Z = undefined))
+        this.props.saveNewProperty(this.state.key, carteObj)
         break
       case 'boolean':
         this.props.saveNewProperty(
@@ -128,6 +143,7 @@ export class AddProperty extends Component {
    * This method handles the component state.
    */
   handleChange = (id, value) => {
+    const latRe = /^[0-9\b.]+$/
     let values = Object.assign({}, this.state.values)
     switch (id) {
       case 'key':
@@ -153,28 +169,35 @@ export class AddProperty extends Component {
           : (values.validFlag = true)
         this.setState({ values })
         break
-      case 'latitude':
-        const latRe = /^[0-9\b.]+$/
-        latRe.test(value) && latRe.test(this.state.values.spacial.longitude)
-          ? (values.numCheck = true)
-          : (values.numCheck = false)
-        values.spacial[id] = value
-        values.spacial.longitude === '' || values.spacial.latitude === ''
-          ? (values.validFlag = false)
-          : (values.validFlag = true)
+      case 'geographical-Spacial':
+        values.geographic.latitude !== '' && values.geographic.longitude !== ''
+          ? (values.validFlag = true)
+          : (values.validFlag = false)
+        if (value.id === 'height' && value.value === '__.__') {
+          ;(values.validFlag = true), (values.numCheck = true)
+        } else {
+          latRe.test(value.value)
+            ? (values.numCheck = true)
+            : (values.numCheck = false)
+        }
+        values.geographic[value.id] = value.value
         this.setState({ values })
         break
-      case 'longitude':
-        const lonRe = /^[0-9\b.]+$/
-        lonRe.test(value) && lonRe.test(this.state.values.spacial.latitude)
-          ? (values.numCheck = true)
-          : (values.numCheck = false)
-        values.spacial[id] = value
-        values.spacial.latitude === '' || values.spacial.longitude === ''
-          ? (values.validFlag = false)
-          : (values.validFlag = true)
+      case 'cartesian-Spacial':
+        values.cartesian[value.id] = value.value
+        values.cartesian.X !== '' && values.cartesian.Y !== ''
+          ? (values.validFlag = true)
+          : (values.validFlag = false)
+        if (value.id === 'Z' && value.value === '') {
+          ;(values.validFlag = true), (values.numCheck = true)
+        } else {
+          latRe.test(value.value)
+            ? (values.numCheck = true)
+            : (values.numCheck = false)
+        }
         this.setState({ values })
         break
+
       case 'boolean':
         values.boolValue = value
         values.validFlag = true
@@ -273,11 +296,20 @@ export class AddProperty extends Component {
           />
         )
         break
-      case 'spacial':
+      case 'geographical-Spacial':
         propertyValueInput = (
-          <SpacialComponent
+          <GeographicSpacial
             handleChange={this.handleChange}
-            spacial={this.state.values.spacial}
+            geographic={this.state.values.geographic}
+            numCheck={this.state.values.numCheck}
+          />
+        )
+        break
+      case 'cartesian-Spacial':
+        propertyValueInput = (
+          <CartesianSpacial
+            handleChange={this.handleChange}
+            cartesian={this.state.values.cartesian}
             numCheck={this.state.values.numCheck}
           />
         )
@@ -301,9 +333,7 @@ export class AddProperty extends Component {
       <Drawer id='db-AddProperty'>
         <DrawerHeader />
         <DrawerBody>
-          <DrawerSubHeader>
-            Add Property : {this.props.SelectedType}
-          </DrawerSubHeader>
+          <DrawerSubHeader>Add Property</DrawerSubHeader>
           <DrawerSection>
             <DrawerSectionBody>
               <StyledTable>

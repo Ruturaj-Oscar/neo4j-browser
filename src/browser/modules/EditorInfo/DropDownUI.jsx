@@ -1,28 +1,13 @@
+/**
+ * This component is used to display the property data types in dropdown.
+ * Based on the selected data type, corresponding elements are rendered.
+ *
+ */
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      // light: will be calculated from palette.primary.main,
-      main: '#ffffff'
-      // dark: will be calculated from palette.primary.main,
-      // contrastText: will be calculated to contrast with palette.primary.main
-    },
-    secondary: {
-      light: '#0066ff',
-      main: '#0044ff',
-      // dark: will be calculated from palette.secondary.main,
-      contrastText: '#ffcc00'
-    }
-    // error: will use the default color
-  }
-})
 
 const styles = theme => ({
   root: {
@@ -60,9 +45,6 @@ class DropDownUI extends React.Component {
     const { classes } = this.props
     return (
       <FormControl className={classes.formControl} variant='outlined'>
-        {/* <InputLabel color="primary" htmlFor="datatype">
-              Data Type
-            </InputLabel> */}
         <Select
           className={classes.drop}
           value={this.props.value}
@@ -78,24 +60,10 @@ class DropDownUI extends React.Component {
           <MenuItem value='boolean'>Boolean</MenuItem>
           <MenuItem value='string'>String</MenuItem>
           <MenuItem value='date'>Date</MenuItem>
-          <MenuItem value='spacial'>Spacial</MenuItem>
+          <MenuItem value='geographical-Spacial'>Geographical-Spacial</MenuItem>
+          <MenuItem value='cartesian-Spacial'>Cartesian-Spacial</MenuItem>
         </Select>
       </FormControl>
-      // <Select
-
-      //   value={this.props.value}
-      //   name="datatypes"
-      //   onChange={e => {
-      //     this.props.onSelect(e.target.value);
-      //   }}
-      //   className={classes.style}
-      // >
-      //   <MenuItem value="number">Numbers</MenuItem>
-      //   <MenuItem value="boolean">Boolean</MenuItem>
-      //   <MenuItem value="string">String</MenuItem>
-      //   <MenuItem value="date">Date</MenuItem>
-      //   <MenuItem value="spacial">Spacial</MenuItem>
-      // </Select>
     )
   }
 }
