@@ -1,3 +1,4 @@
+import * as _ from 'lodash'
 import { handleCypherCommand } from '../commands/helpers/cypher'
 const initialState = {
   selectedItem: undefined
@@ -7,6 +8,7 @@ const initialState = {
 export const NAME = 'itemEditor'
 export const SET_SELECTED_ITEM = `${NAME}/SET_SELECTED_ITEM`
 export const FETCH_DATA_ON_SELECT = `${NAME}/FETCH_DATA_ON_SELECT`
+export const SAVE_NEW_PROPERTY = `${NAME}/SAVE_NEW_PROPERTY`
 // Actions
 
 export const setSelectedItem = item => {
@@ -24,11 +26,23 @@ export const fetchData = (id, entityType) => {
   }
 }
 
+export const saveNewProperty = (id, value) => {
+  return {
+    type: SAVE_NEW_PROPERTY,
+    id,
+    value
+  }
+}
+
 // Reducer
 export default function reducer (state = initialState, action) {
   switch (action.type) {
     case SET_SELECTED_ITEM:
       return { ...state, selectedItem: action.item }
+    case SAVE_NEW_PROPERTY:
+      let newState = _.cloneDeep(state)
+      newState.selectedItem._fields[0].properties[action.id] = action.value
+      return newState
     default:
       return state
   }
