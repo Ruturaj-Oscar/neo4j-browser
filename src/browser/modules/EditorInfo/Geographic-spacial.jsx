@@ -46,79 +46,77 @@ TextMaskCustom.propTypes = {
   inputRef: PropTypes.func.isRequired
 }
 
-class GeographicSpacial extends React.Component {
-  render() {
-    const { classes } = this.props
-    return (
-      <>
-        <div>
-          Latitude :
-          <Input
-            style={
-              this.props.numCheck
-                ? {
-                    width: '120px'
-                  }
-                : {
-                    borderColor: 'crimson',
-                    borderWidth: '2px',
-                    width: '120px'
-                  }
-            }
-            className={classes.style}
-            value={this.props.geographic.latitude}
-            onChange={e => {
-              this.props.handleChange('geographical-Spacial', e.target)
-            }}
-            id="latitude"
-            inputComponent={TextMaskCustom}
-          />
-        </div>
-        <div>
-          Longitude:
-          <Input
-            style={
-              this.props.numCheck
-                ? { width: '120px' }
-                : {
-                    borderColor: 'crimson',
-                    borderWidth: '2px',
-                    width: '120px'
-                  }
-            }
-            className={classes.style}
-            value={this.props.geographic.longitude}
-            onChange={e => {
-              this.props.handleChange('geographical-Spacial', e.target)
-            }}
-            id="longitude"
-            inputComponent={TextMaskCustom}
-          />
-        </div>
-        <div>
-          height:
-          <Input
-            style={
-              this.props.numCheck
-                ? { width: '120px' }
-                : {
-                    borderColor: 'crimson',
-                    borderWidth: '2px',
-                    width: '120px'
-                  }
-            }
-            className={classes.style}
-            value={this.props.geographic.height}
-            onChange={e => {
-              this.props.handleChange('geographical-Spacial', e.target)
-            }}
-            id="height"
-            inputComponent={TextMaskCustom}
-          />
-        </div>
-      </>
-    )
-  }
+const GeographicSpacial = props => {
+  const { classes } = props
+  return (
+    <>
+      <div>
+        Latitude :
+        <Input
+          style={
+            props.numCheck
+              ? {
+                  width: '120px'
+                }
+              : {
+                  borderColor: 'crimson',
+                  borderWidth: '2px',
+                  width: '120px'
+                }
+          }
+          className={classes.style}
+          value={props.geographic.latitude}
+          onChange={e => {
+            props.handleChange('geographical-Spacial', e.target)
+          }}
+          id="latitude"
+          inputComponent={TextMaskCustom}
+        />
+      </div>
+      <div>
+        Longitude:
+        <Input
+          style={
+            props.numCheck
+              ? { width: '120px' }
+              : {
+                  borderColor: 'crimson',
+                  borderWidth: '2px',
+                  width: '120px'
+                }
+          }
+          className={classes.style}
+          value={props.geographic.longitude}
+          onChange={e => {
+            props.handleChange('geographical-Spacial', e.target)
+          }}
+          id="longitude"
+          inputComponent={TextMaskCustom}
+        />
+      </div>
+      <div>
+        height:
+        <Input
+          style={
+            props.numCheck
+              ? { width: '120px' }
+              : {
+                  borderColor: 'crimson',
+                  borderWidth: '2px',
+                  width: '120px'
+                }
+          }
+          className={classes.style}
+          value={props.geographic.height}
+          onChange={e => {
+            props.handleChange('geographical-Spacial', e.target)
+          }}
+          id="height"
+          inputComponent={TextMaskCustom}
+        />
+      </div>
+    </>
+  )
 }
 
 GeographicSpacial.propTypes = {

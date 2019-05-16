@@ -18,7 +18,8 @@ import {
   DrawerFooter,
   DrawerSubHeader
 } from 'browser-components/drawer/index'
-import DatePicker from './DatePicker'
+import DayPicker from 'react-day-picker'
+import 'react-day-picker/lib/style.css'
 import GeographicSpacial from './Geographic-spacial'
 import CartesianSpacial from './Cartesian-spacial'
 import DropDownUI from './DropDownUI'
@@ -32,10 +33,10 @@ export class AddProperty extends Component {
 
     this.state = {
       key: '',
-      calenderFlag: false,
       propertyType: undefined,
       date: new Date().toLocaleDateString(),
       values: {
+        calenderFlag: false,
         validFlag: false,
         numCheck: false,
         boolValue: false,
@@ -59,6 +60,7 @@ export class AddProperty extends Component {
    */
   getInitState = () => {
     let values = {
+      calenderFlag: false,
       validFlag: false,
       numCheck: false,
       boolValue: false,
@@ -81,9 +83,9 @@ export class AddProperty extends Component {
    */
 
   toggleCalender = () => {
-    this.setState({
-      calenderFlag: !this.state.calenderFlag
-    })
+    let values = _.cloneDeep(this.state.values)
+    values.calenderFlag = !this.state.values.calenderFlag
+    this.setState({ values })
   }
 
   /**
@@ -366,8 +368,14 @@ export class AddProperty extends Component {
                     <StyledValue>{propertyValueInput}</StyledValue>
                   </tr>
                   <tr>
-                    {this.state.calenderFlag ? (
-                      <DatePicker onDatePropSelect={this.handleChange} />
+                    {this.state.values.calenderFlag ? (
+                      <DayPicker
+                        style={{ float: 'right' }}
+                        id='date'
+                        onDayClick={day => {
+                          this.handleChange('date', day)
+                        }}
+                      />
                     ) : null}
                   </tr>
                 </tbody>
@@ -392,9 +400,7 @@ export class AddProperty extends Component {
               onClick={() => {
                 this.handleSave(this.state.propertyType)
                 this.props.setAddPropVisibility()
-                this.setState({
-                  calenderFlag: false
-                })
+                this.toggleCalender()
               }}
               disabled={
                 !(

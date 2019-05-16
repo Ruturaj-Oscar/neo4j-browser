@@ -26,80 +26,78 @@ const styles = theme => ({
   }
 })
 
-class CartesianSpacial extends React.Component {
-  render() {
-    const { classes } = this.props
-    return (
-      <>
-        <div>
-          X :<br />
-          <Input
-            style={
-              this.props.numCheck
-                ? {
-                    width: '120px'
-                  }
-                : {
-                    borderColor: 'crimson',
-                    borderWidth: '2px',
-                    width: '120px'
-                  }
-            }
-            className={classes.style}
-            value={this.props.cartesian.X}
-            onChange={e => {
-              this.props.handleChange('cartesian-Spacial', e.target)
-            }}
-            id="X"
-          />
-        </div>
-        <div>
-          Y :<br />
-          <Input
-            style={
-              this.props.numCheck
-                ? {
-                    width: '120px'
-                  }
-                : {
-                    borderColor: 'crimson',
-                    borderWidth: '2px',
-                    width: '120px'
-                  }
-            }
-            className={classes.style}
-            value={this.props.cartesian.Y}
-            onChange={e => {
-              this.props.handleChange('cartesian-Spacial', e.target)
-            }}
-            id="Y"
-          />
-        </div>
-        <div>
-          Z :<br />
-          <Input
-            style={
-              this.props.numCheck
-                ? {
-                    width: '120px'
-                  }
-                : {
-                    borderColor: 'crimson',
-                    borderWidth: '2px',
-                    width: '120px'
-                  }
-            }
-            className={classes.style}
-            value={this.props.cartesian.Z}
-            onChange={e => {
-              this.props.handleChange('cartesian-Spacial', e.target)
-            }}
-            id="Z"
-          />
-        </div>
-      </>
-    )
-  }
+const CartesianSpacial = props => {
+  const { classes } = props
+  return (
+    <>
+      <div>
+        X :<br />
+        <Input
+          style={
+            props.numCheck
+              ? {
+                  width: '120px'
+                }
+              : {
+                  borderColor: 'crimson',
+                  borderWidth: '2px',
+                  width: '120px'
+                }
+          }
+          className={classes.style}
+          value={props.cartesian.X}
+          onChange={e => {
+            props.handleChange('cartesian-Spacial', e.target)
+          }}
+          id="X"
+        />
+      </div>
+      <div>
+        Y :<br />
+        <Input
+          style={
+            props.numCheck
+              ? {
+                  width: '120px'
+                }
+              : {
+                  borderColor: 'crimson',
+                  borderWidth: '2px',
+                  width: '120px'
+                }
+          }
+          className={classes.style}
+          value={props.cartesian.Y}
+          onChange={e => {
+            props.handleChange('cartesian-Spacial', e.target)
+          }}
+          id="Y"
+        />
+      </div>
+      <div>
+        Z :<br />
+        <Input
+          style={
+            props.numCheck
+              ? {
+                  width: '120px'
+                }
+              : {
+                  borderColor: 'crimson',
+                  borderWidth: '2px',
+                  width: '120px'
+                }
+          }
+          className={classes.style}
+          value={props.cartesian.Z}
+          onChange={e => {
+            props.handleChange('cartesian-Spacial', e.target)
+          }}
+          id="Z"
+        />
+      </div>
+    </>
+  )
 }
 
 CartesianSpacial.propTypes = {
